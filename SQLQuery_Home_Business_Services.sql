@@ -8,7 +8,8 @@ CREATE TABLE Users (
     Email VARCHAR(100),
     PasswordHash VARCHAR(100),
     Role VARCHAR(20) CHECK (Role IN ('Manager', 'ServiceProvider', 'User')),
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT GETDATE(),
+	image varchar(200)
 );
 
 CREATE TABLE ServiceProviders (
