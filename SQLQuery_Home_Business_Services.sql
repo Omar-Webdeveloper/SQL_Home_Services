@@ -14,7 +14,7 @@ CREATE TABLE Users (
 CREATE TABLE ServiceProviders (
     ProviderID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT unique,
-    BusinessName VARCHAR(100),
+    WorkerName VARCHAR(100),
     ServiceType VARCHAR(50),
     Rating FLOAT,
     Achievements VARCHAR(100),
