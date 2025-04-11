@@ -33,7 +33,7 @@ CREATE TABLE Services (
     ServiceID INT IDENTITY(1,1) PRIMARY KEY,
     ServiceName VARCHAR(100) unique,
     Description VARCHAR(2000),
-    Price DECIMAL(10, 2),
+    Starting_Price DECIMAL(10, 2),
     CreatedAt DATETIME DEFAULT GETDATE(),
 	image varchar(200)
 );
