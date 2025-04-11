@@ -35,6 +35,7 @@ CREATE TABLE Services (
     Description VARCHAR(2000),
     Price DECIMAL(10, 2),
     CreatedAt DATETIME DEFAULT GETDATE(),
+	image varchar(200)
 );
 CREATE TABLE Bookings (
     BookingID INT IDENTITY(1,1) PRIMARY KEY,
