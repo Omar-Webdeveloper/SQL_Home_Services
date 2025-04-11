@@ -1,6 +1,5 @@
-
 create database  Home_Business_Services_Managment_Database;
-
+use  Home_Business_Services_Managment_Database;
 CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
     FirstName VARCHAR(50),
@@ -23,14 +22,19 @@ CREATE TABLE ServiceProviders (
     Photos VARCHAR(2000), -- URLs or paths to the provider's photos
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+create table service_Workers_JunctionTable_
+(
+ProviderID INT,
+ServiceID INT,
+    FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE CASCADE,
+    FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE CASCADE
+)
 CREATE TABLE Services (
     ServiceID INT IDENTITY(1,1) PRIMARY KEY,
-    ProviderID INT,
-    ServiceName VARCHAR(100),
+    ServiceName VARCHAR(100) unique,
     Description VARCHAR(2000),
     Price DECIMAL(10, 2),
     CreatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE CASCADE
 );
 CREATE TABLE Bookings (
     BookingID INT IDENTITY(1,1) PRIMARY KEY,
