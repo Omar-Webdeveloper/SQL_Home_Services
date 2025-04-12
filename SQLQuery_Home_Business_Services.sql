@@ -4,11 +4,16 @@ CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
     FirstName VARCHAR(50),
     LastName VARCHAR(50),
-    Email VARCHAR(100),
+    Email VARCHAR(200) UNIQUE NOT NULL,
     PasswordHash VARCHAR(100),
     Role VARCHAR(20) CHECK (Role IN ('Manager', 'ServiceProvider', 'User')),
     CreatedAt DATETIME DEFAULT GETDATE(),
 	image varchar(200)
+	Address VARCHAR(255),
+    DateOfBirth DATE,
+    PhoneNumber VARCHAR(20),
+    Gender VARCHAR(10) CHECK (Gender IN ('Male', 'Female')),
+    IsActive BIT DEFAULT 1
 );
 
 CREATE TABLE ServiceProviders (
@@ -66,3 +71,5 @@ CREATE TABLE Tasks (
     AfterPhoto VARCHAR(2000), -- URL or path to the after photo
     FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE CASCADE
 );
+
+
