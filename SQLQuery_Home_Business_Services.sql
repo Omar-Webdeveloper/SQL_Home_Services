@@ -47,8 +47,10 @@ CREATE TABLE Bookings (
     UserID INT,
     ServiceID INT,
     BookingDate DATETIME,
+	Message VARCHAR(2000) NOT NULL,
     Status VARCHAR(20) CHECK (Status IN ('Pending', 'Confirmed', 'Completed')),
     CreatedAt DATETIME DEFAULT GETDATE(),
+	BookingDetails nvarchar(200) not null default 'waiting',
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE NO ACTION,
     FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE NO ACTION
 );
@@ -69,7 +71,29 @@ CREATE TABLE Tasks (
     TaskStatus VARCHAR(20) DEFAULT 'TO DO',
     BeforePhoto VARCHAR(2000), -- URL or path to the before photo
     AfterPhoto VARCHAR(2000), -- URL or path to the after photo
+	TasksDetails nvarchar(200) not null default 'waiting',
     FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE CASCADE
 );
 
+CREATE TABLE ContactUs (
+    ContactID INT IDENTITY(1,1) PRIMARY KEY, -- Unique identifier for each contact entry
+    FirstName VARCHAR(100) NOT NULL,        -- First Name of the user
+    LastName VARCHAR(100) NOT NULL,         -- Last Name of the user
+    Email VARCHAR(255) NOT NULL,            -- Email address of the user
+    Message VARCHAR(2000) NOT NULL,                  -- Message sent by the user
+    CreatedAt DATETIME DEFAULT GETDATE(),    -- Timestamp of the form submission
+	UserID INT,
+	FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE No Action
+);
 
+CREATE TABLE Evaluations (
+    EvaluationID INT IDENTITY(1,1) PRIMARY KEY, -- Unique ID for each evaluation
+    ProviderID INT,                             -- Reference to the ServiceProvider
+    AdminID INT,                                -- Reference to the Admin (UserID of the Manager)
+    EvaluationYear INT,                         -- Year of the evaluation
+    Score FLOAT,                                -- Evaluation score
+    Comments VARCHAR(2000),                     -- Optional comments by the admin
+    CreatedAt DATETIME DEFAULT GETDATE(),       -- Timestamp for the evaluation
+    FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE NO ACTION,
+    FOREIGN KEY (AdminID) REFERENCES Users(UserID) ON DELETE NO ACTION
+);
