@@ -24,6 +24,7 @@ CREATE TABLE ServiceProviders (
     Rating FLOAT,
     Achievements VARCHAR(100),
     Intro VARCHAR(2000),
+	Register_at DATETIME DEFAULT GETDATE(),
     Photos VARCHAR(2000), -- URLs or paths to the provider's photos
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
@@ -46,11 +47,12 @@ CREATE TABLE Bookings (
     BookingID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT,
     ServiceID INT,
-    BookingDate DATETIME,
-	Message VARCHAR(2000) NOT NULL,
     Status VARCHAR(20) CHECK (Status IN ('Pending', 'Confirmed', 'Completed')),
-    CreatedAt DATETIME DEFAULT GETDATE(),
-	BookingDetails nvarchar(200) not null default 'waiting',
+    BookingDate DATETIME DEFAULT GETDATE(),
+	BookingTittle varchar(2000),
+	BookingMessae varchar(2000),
+	BookingNotes varchar(2000),
+	ImageWhereTheIssueLocated varbinary(MAX),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE NO ACTION,
     FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE NO ACTION
 );
@@ -60,7 +62,8 @@ CREATE TABLE Reviews (
     Rating INT,
     Comment VARCHAR(2000),
     CreatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID) ON DELETE CASCADE
+	Review_Status  VARCHAR(255) CHECK (Review_Status IN ('Pending', 'Rejected_Transfer_To_Manager', 'Accepted_To_Show_All' , 'Netural')),
+    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID) ON DELETE No Action
 );
 CREATE TABLE Tasks (
     TaskID INT IDENTITY(1,1) PRIMARY KEY,
@@ -97,3 +100,4 @@ CREATE TABLE Evaluations (
     FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE NO ACTION,
     FOREIGN KEY (AdminID) REFERENCES Users(UserID) ON DELETE NO ACTION
 );
+
