@@ -26,6 +26,11 @@ CREATE TABLE ServiceProviders (
     Intro VARCHAR(2000),
 	Register_at DATETIME DEFAULT GETDATE(),
     Photos VARCHAR(2000), -- URLs or paths to the provider's photos
+	Email VARCHAR(200),
+    PhoneNumber VARCHAR(20),
+	Gender VARCHAR(10) CHECK (Gender IN ('Male', 'Female')),
+	BirthDate Date,
+	Worker_Address varchar(100),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 create table service_Workers_JunctionTable_
@@ -55,6 +60,15 @@ CREATE TABLE Bookings (
 	ImageWhereTheIssueLocated varbinary(MAX),
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE NO ACTION,
     FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE NO ACTION
+);
+CREATE TABLE Payment (
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique identifier for each payment
+    BookingID int Unique NOT NULL, -- Foreign key connecting to the Bookings table
+    payment_method VARCHAR(50), -- Payment method (e.g., cash, credit card)
+    cardnumber VARCHAR(16), -- Stores the credit/debit card number
+    CVC VARCHAR(4), -- Stores the Card Verification Code
+    ExpiryDate DATE, -- Stores the card expiration date
+    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID) -- Establishes the relationship to Bookings
 );
 CREATE TABLE Reviews (
     ReviewID INT IDENTITY(1,1) PRIMARY KEY,
