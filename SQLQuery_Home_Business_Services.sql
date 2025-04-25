@@ -1,117 +1,168 @@
 create database  Home_Business_Services_Managment_Database;
-use  Home_Business_Services_Managment_Database;
+use  Home_Business_Services_Managment_Database;-- Base Users Table
 CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
     FirstName VARCHAR(50),
     LastName VARCHAR(50),
     Email VARCHAR(200) UNIQUE NOT NULL,
     PasswordHash VARCHAR(100),
-    Role VARCHAR(20) CHECK (Role IN ('Manager', 'ServiceProvider', 'User')),
     CreatedAt DATETIME DEFAULT GETDATE(),
-	image varchar(200)
-	Address VARCHAR(255),
+    Personal_Image VARBINARY(MAX),
+    Personal_Address VARCHAR(255),
     DateOfBirth DATE,
     PhoneNumber VARCHAR(20),
     Gender VARCHAR(10) CHECK (Gender IN ('Male', 'Female')),
-    IsActive BIT DEFAULT 1
+	Location_Id INT ,
+	Worker_Service_Type VARCHAR(50),
+    Worker__Rating FLOAT,
+    Worker__Intro VARCHAR(2000),
+    IsActive BIT DEFAULT 1,
+	FOREIGN KEY (Location_Id) REFERENCES Location_Areas(Location_Id) ON DELETE set null
 );
 
-CREATE TABLE ServiceProviders (
-    ProviderID INT IDENTITY(1,1) PRIMARY KEY,
-    UserID INT unique,
-    WorkerName VARCHAR(100),
-    ServiceType VARCHAR(50),
-    Rating FLOAT,
-    Achievements VARCHAR(100),
-    Intro VARCHAR(2000),
-	Register_at DATETIME DEFAULT GETDATE(),
-    Photos VARCHAR(2000), -- URLs or paths to the provider's photos
-	Email VARCHAR(200),
-    PhoneNumber VARCHAR(20),
-	Gender VARCHAR(10) CHECK (Gender IN ('Male', 'Female')),
-	BirthDate Date,
-	Worker_Address varchar(100),
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+-- Roles Table (to store different roles)
+CREATE TABLE Roles (
+    RoleID INT IDENTITY(1,1) PRIMARY KEY,
+    RoleName VARCHAR(100) 
 );
-create table service_Workers_JunctionTable_
-(
-ProviderID INT,
-ServiceID INT,
-    FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE CASCADE,
-    FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE CASCADE
-)
-CREATE TABLE Services (
+
+-- Junction Table: Many-to-Many Relationship between Users and Roles
+CREATE TABLE UserRoles (
+	id int IDENTITY(1,1) PRIMARY KEY,
+    UserID INT,
+    RoleID INT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE No Action,
+    FOREIGN KEY (RoleID) REFERENCES Roles(RoleID) ON DELETE No Action,
+    CONSTRAINT PK_UserRoles PRIMARY KEY (UserID, RoleID)  -- Composite Primary Key
+);
+
+CREATE TABLE Location_Areas(
+    Location_Id INT IDENTITY(1,1) PRIMARY KEY,
+	Areas_Covered Varchar(200),
+	ManagerID INT UNIQUE,
+    FOREIGN KEY (ManagerID) REFERENCES Users(UserID) ON DELETE set null
+);
+
+
+CREATE TABLE Achievements (
+    AchievementID INT IDENTITY(1,1) PRIMARY KEY, -- Unique achievement ID
+    AchievementName VARCHAR(100) NOT NULL, -- Name or title of the achievement
+	Achievement_Patch_Image VARBINARY(MAX),
+    AchievementDescription VARCHAR(1000), -- Additional details about the achievement
+    AchievementDate DATE -- Date when the achievement was earned
+);
+
+-- Junction Table: Many-to-Many Relationship between Workres and Roles
+
+CREATE TABLE WorkerAchievements (
+    WorkerID INT NOT NULL, -- Foreign key to Workers table
+    AchievementID INT NOT NULL, -- Foreign key to Achievements table
+    FOREIGN KEY (WorkerID) REFERENCES Users(UserID) ON DELETE No action,
+    FOREIGN KEY (AchievementID) REFERENCES Achievements(AchievementID) ON DELETE No action
+);
+
+
+
+-- Services Table
+CREATE TABLE Main_Service (
     ServiceID INT IDENTITY(1,1) PRIMARY KEY,
-    ServiceName VARCHAR(100) unique,
+    ServiceName VARCHAR(100) UNIQUE,
     Description VARCHAR(2000),
-    Starting_Price DECIMAL(10, 2),
+    Service_Price DECIMAL(10, 2),
     CreatedAt DATETIME DEFAULT GETDATE(),
-	image varchar(200)
+    Image VARBINARY(MAX)
 );
+
+
+-- Junction Table for Wroker <-> Service
+CREATE TABLE Service_Workers_JunctionTable (
+    WrokerID INT,
+    ServiceID INT,
+    FOREIGN KEY (WrokerID) REFERENCES Users(UserID) ON DELETE set null,
+    FOREIGN KEY (ServiceID) REFERENCES Main_Service(ServiceID) ON DELETE set null
+);
+
+
+-- add status
 CREATE TABLE Bookings (
     BookingID INT IDENTITY(1,1) PRIMARY KEY,
     UserID INT,
     ServiceID INT,
     Status VARCHAR(20) CHECK (Status IN ('Pending', 'Confirmed', 'Completed')),
-    BookingDate DATETIME DEFAULT GETDATE(),
-	BookingTittle varchar(2000),
-	BookingMessae varchar(2000),
-	BookingNotes varchar(2000),
-	ImageWhereTheIssueLocated varbinary(MAX),
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE NO ACTION,
-    FOREIGN KEY (ServiceID) REFERENCES Services(ServiceID) ON DELETE NO ACTION
+	Booking_Start_Date DateTime DEFAULT GETDATE(),
+	Booking_End_Date DateTime,
+    BookingTittle VARCHAR(2000),
+    BookingMessae VARCHAR(2000),
+    BookingNotes VARCHAR(2000),
+    ImageWhereTheIssueLocated VARBINARY(MAX),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (ServiceID) REFERENCES Main_Service(ServiceID)
 );
+
+
+-- Payment Table
 CREATE TABLE Payment (
-    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique identifier for each payment
-    BookingID int Unique NOT NULL, -- Foreign key connecting to the Bookings table
-    payment_method VARCHAR(50), -- Payment method (e.g., cash, credit card)
-    cardnumber VARCHAR(16), -- Stores the credit/debit card number
-    CVC VARCHAR(4), -- Stores the Card Verification Code
-    ExpiryDate DATE, -- Stores the card expiration date
-    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID) -- Establishes the relationship to Bookings
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    BookingID INT UNIQUE NOT NULL,
+	Amount Float,
+    Payment_Method VARCHAR(50),
+    CardNumber VARCHAR(16),
+    CVC VARCHAR(4),
+    ExpiryDate DATE,
+    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID)
 );
+
+
+-- Reviews Table
 CREATE TABLE Reviews (
     ReviewID INT IDENTITY(1,1) PRIMARY KEY,
     BookingID INT,
     Rating INT,
     Comment VARCHAR(2000),
     CreatedAt DATETIME DEFAULT GETDATE(),
-	Review_Status  VARCHAR(255) CHECK (Review_Status IN ('Pending', 'Rejected_Transfer_To_Manager', 'Accepted_To_Show_All' , 'Netural')),
-    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID) ON DELETE No Action
+    Review_Status VARCHAR(255) CHECK (Review_Status IN ('Pending', 'Rejected_Transfer_To_Manager', 'Accepted_To_Show_All', 'Netural')),
+    FOREIGN KEY (BookingID) REFERENCES Bookings(BookingID)
 );
+
+
+
+-- Tasks Table
 CREATE TABLE Tasks (
     TaskID INT IDENTITY(1,1) PRIMARY KEY,
-    ProviderID INT,
+    WrokerID INT,
     TaskName VARCHAR(50),
     StartDate DATE,
     EndDate DATE,
     TaskStatus VARCHAR(20) DEFAULT 'TO DO',
-    BeforePhoto VARCHAR(2000), -- URL or path to the before photo
-    AfterPhoto VARCHAR(2000), -- URL or path to the after photo
-	TasksDetails nvarchar(200) not null default 'waiting',
-    FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE CASCADE
+    BeforePhoto VARBINARY(MAX),
+    AfterPhoto VARBINARY(MAX),
+    TasksDetails NVARCHAR(200) NOT NULL DEFAULT 'waiting',
+    FOREIGN KEY (WrokerID) REFERENCES Users(UserID) ON DELETE set null
 );
 
+-- Contact Us Table
 CREATE TABLE ContactUs (
-    ContactID INT IDENTITY(1,1) PRIMARY KEY, -- Unique identifier for each contact entry
-    FirstName VARCHAR(100) NOT NULL,        -- First Name of the user
-    LastName VARCHAR(100) NOT NULL,         -- Last Name of the user
-    Email VARCHAR(255) NOT NULL,            -- Email address of the user
-    Message VARCHAR(2000) NOT NULL,                  -- Message sent by the user
-    CreatedAt DATETIME DEFAULT GETDATE(),    -- Timestamp of the form submission
-	UserID INT,
-	FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE No Action
+    ContactID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    ContactUs_Message VARCHAR(2000) NOT NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
 );
 
+-- Evaluations Table
 CREATE TABLE Evaluations (
-    EvaluationID INT IDENTITY(1,1) PRIMARY KEY, -- Unique ID for each evaluation
-    ProviderID INT,                             -- Reference to the ServiceProvider
-    AdminID INT,                                -- Reference to the Admin (UserID of the Manager)
-    EvaluationYear INT,                         -- Year of the evaluation
-    Score FLOAT,                                -- Evaluation score
-    Comments VARCHAR(2000),                     -- Optional comments by the admin
-    CreatedAt DATETIME DEFAULT GETDATE(),       -- Timestamp for the evaluation
-    FOREIGN KEY (ProviderID) REFERENCES ServiceProviders(ProviderID) ON DELETE NO ACTION,
-    FOREIGN KEY (AdminID) REFERENCES Users(UserID) ON DELETE NO ACTION
+    EvaluationID INT IDENTITY(1,1) PRIMARY KEY,
+    WrokerID INT,
+    EvaluationYear INT,
+    Score FLOAT,
+    Comments VARCHAR(2000),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (WrokerID) REFERENCES Users(UserID),
 );
 
+
+
+
+ALTER TABLE UserRoles
+ADD 
