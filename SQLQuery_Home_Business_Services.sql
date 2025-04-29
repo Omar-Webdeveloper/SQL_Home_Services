@@ -95,10 +95,12 @@ CREATE TABLE Bookings (
     BookingMessae VARCHAR(2000),
     BookingNotes VARCHAR(2000),
     ImageWhereTheIssueLocated VARBINARY(MAX),
+	ImageAfterFixing VARBINARY(MAX),
+	WorkerID INT NULL,
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (ServiceID) REFERENCES Main_Service(ServiceID)
+    FOREIGN KEY (ServiceID) REFERENCES Main_Service(ServiceID),
+	FOREIGN KEY (WorkerID) REFERENCES Users(UserID) ON DELETE SET NULL
 );
-
 
 -- Payment Table
 CREATE TABLE Payment (
@@ -163,6 +165,3 @@ CREATE TABLE Evaluations (
 
 
 
-
-ALTER TABLE UserRoles
-ADD 
