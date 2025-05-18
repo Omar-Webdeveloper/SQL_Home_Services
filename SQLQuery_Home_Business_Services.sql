@@ -38,11 +38,10 @@ CREATE TABLE UserRoles (
 
 CREATE TABLE Location_Areas(
     Location_Id INT IDENTITY(1,1) PRIMARY KEY,
-	Areas_Covered Varchar(200),
+	Areas_Covered Varchar(200) UNIQUE,
 	ManagerID INT UNIQUE,
     FOREIGN KEY (ManagerID) REFERENCES Users(UserID) ON DELETE set null
 );
-
 
 CREATE TABLE Achievements (
     AchievementID INT IDENTITY(1,1) PRIMARY KEY, -- Unique achievement ID
@@ -62,7 +61,6 @@ CREATE TABLE WorkerAchievements (
 );
 
 
-
 -- Services Table
 CREATE TABLE Main_Service (
     ServiceID INT IDENTITY(1,1) PRIMARY KEY,
@@ -76,12 +74,13 @@ CREATE TABLE Main_Service (
 
 -- Junction Table for Wroker <-> Service
 CREATE TABLE Service_Workers_JunctionTable (
+ ID INT IDENTITY(1,1) PRIMARY KEY,
     WrokerID INT,
     ServiceID INT,
+	 Status VARCHAR(20) DEFAULT 'Pending'  CHECK (Status IN ('Pending', 'Rejected', 'Accepted')),
     FOREIGN KEY (WrokerID) REFERENCES Users(UserID) ON DELETE set null,
     FOREIGN KEY (ServiceID) REFERENCES Main_Service(ServiceID) ON DELETE set null
 );
-
 
 -- add status
 CREATE TABLE Bookings (
